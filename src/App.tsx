@@ -1,25 +1,34 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+} from 'react-router-dom';
+import { ProvideAuth, useAuth } from './hooks/use-auth';
+import Home from './components/home/Home';
+import LoginRedirect from './components/authentication/LoginRedirect';
+import AuthHandler from './components/authentication/AuthHandler';
+import { ProvideSpotify } from './hooks/use-spotify';
 
-function App() {
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <ProvideSpotify>
+      <ProvideAuth>
+        <Router>
+          <Switch>
+            <Route path="/login">
+              <LoginRedirect />
+            </Route>
+            <Route path="/auth">
+              <AuthHandler />
+            </Route>
+            <Route path="/">
+              <Home />
+            </Route>
+          </Switch>
+        </Router>
+      </ProvideAuth>
+    </ProvideSpotify>
   );
 }
 

@@ -1,0 +1,17 @@
+.tab-nav {
+    display: flex;
+    cursor: pointer;
+
+    &--selected {
+        background-color: grey;
+    }
+
+    & div {
+        border: .3rem solid black;
+        border-bottom: 0rem;
+
+        &:first-child {
+            border-right: 0rem;
+        }
+    }
+}

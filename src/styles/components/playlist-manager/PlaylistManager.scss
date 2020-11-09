@@ -1,0 +1,45 @@
+.playlist-manager {
+    overflow-y: scroll;
+    border: .3rem solid black;
+    width: 30%;
+    // padding: 1rem;
+
+    & img {
+        height: 15rem;
+        width: 15rem;
+    }
+
+    .playlist-item {
+        cursor: pointer;
+        display: flex;
+        justify-content: left;
+
+        border: .3rem solid black;
+        margin-bottom: .5rem;
+
+        &:hover{
+            background-color: green;
+        }
+
+        &--selected {
+            background-color: grey;
+        }
+
+        &__info {
+            margin-left: 2rem;
+            padding-right: 5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+
+            & h2 {
+                padding-bottom: .5rem;
+                border-bottom: .1rem solid grey;
+            }
+        }
+    }
+}
+
+.playlist {
+    height: 90rem;
+}
