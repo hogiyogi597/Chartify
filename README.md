@@ -1,3 +1,6 @@
+# Chartify
+A simple website to create charts using the audio features of the Spotify API to visualize playlists based on certain attributes (acousticness, speechiness, loudness, liveness, etc.)
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
