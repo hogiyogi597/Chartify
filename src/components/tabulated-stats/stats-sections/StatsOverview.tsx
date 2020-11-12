@@ -1,21 +1,26 @@
-import React from 'react'
+import { Text, useToken } from '@chakra-ui/core'
+import React, { useEffect, useState } from 'react'
 import { useGlobal } from '../../../hooks/use-global-context'
 import RadarChart from './charts/RadarChart'
+import lodash from 'lodash'
 
 const StatsOverview = () => {
-    const { averagedAnalyses, selectedPlaylist } = useGlobal()
+    const { radarChartDataMap } = useGlobal()
 
-    const preppedData = averagedAnalyses && selectedPlaylist ?
-        Object.keys(averagedAnalyses).map((key, index) => {
-            return {
-                'analysisFeature': key,
-                [selectedPlaylist.name]: (Object.values(averagedAnalyses)[index] as number).toFixed(2)
-            }
-        }) : undefined
+    const temp = Array.from(radarChartDataMap.values()).reduce((prev, curr) => prev.concat(curr), [])
+    const tempMap = lodash.groupBy(temp, _ => _.analysisFeature)
+
+    const map: any = {}
+    Object.keys(tempMap).forEach(featureName => {
+        tempMap[featureName].forEach(data => {
+            const { analysisFeature, ...rest } = data
+            map[featureName] = { ...map[featureName], analysisFeature: featureName, ...rest }
+        })
+    })
 
     return (
         <>
-            {preppedData && selectedPlaylist ? <RadarChart data={preppedData} playlistName={selectedPlaylist.name} /> : <div>No data</div>}
+            {Object.keys(map).length ? <RadarChart data={Object.values(map)} /> : <Text>No data</Text>}
         </>
     )
 }

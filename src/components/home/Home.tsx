@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Redirect } from 'react-router-dom'
+import { Flex } from '@chakra-ui/core'
+import React from 'react'
 import { useAuth } from '../../hooks/use-auth'
 import { ProvideGlobalContext } from '../../hooks/use-global-context'
 import UserLogin from '../login/UserLogin'
@@ -11,10 +11,10 @@ const Home = () => {
 
     return !isLoggedIn ? <UserLogin /> : (
         <ProvideGlobalContext>
-            <div className="main">
+            <Flex justifyContent='space-between'>
                 <PlaylistManager />
                 <TabulatedStats />
-            </div>
+            </Flex>
         </ProvideGlobalContext>
     )
 }

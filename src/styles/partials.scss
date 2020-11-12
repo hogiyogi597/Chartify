@@ -10,6 +10,10 @@
         border: .3rem solid black;
         border-bottom: 0rem;
 
+        &:hover {
+            background-color: green;
+        }
+
         &:first-child {
             border-right: 0rem;
         }

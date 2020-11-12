@@ -5,18 +5,19 @@ import { AccumulatedAverages, AccumulatedAveragesM } from '../../models/accumula
 import StatsComparison from './stats-sections/StatsComparison'
 import StatsOverview from './stats-sections/StatsOverview'
 import classnames from 'classnames'
+import { Flex, Tabs, Tab, TabList, TabPanel, TabPanels } from '@chakra-ui/core'
 
 const TabulatedStats = () => {
     const [selectedTabIndex, setSelectedTabIndex] = useState(0)
     const { spotifyClient, isAuthenticated } = useSpotify()
-    const { selectedPlaylist, setAveragedAnalyses } = useGlobal()
+    const { selectedPlaylistsMap, addToRadarChartDataMap } = useGlobal()
 
     const tabs = [{
         displayName: "Overview",
-        component: StatsOverview
+        renderPanel: StatsOverview,
     }, {
         displayName: "Breakdown",
-        component: StatsComparison
+        renderPanel: StatsComparison
     }]
 
     useEffect(() => {
@@ -42,23 +43,34 @@ const TabulatedStats = () => {
                 return AccumulatedAveragesM.average(combinedAverages, trackResponse.total)
         }
 
-        if (isAuthenticated && selectedPlaylist?.id) {
-            gatherTrackAnalysesRec(selectedPlaylist.id, 0, AccumulatedAveragesM.empty)
-                .then(setAveragedAnalyses)
+        if (isAuthenticated) {
+            selectedPlaylistsMap.forEach((playlist, id) => {
+                gatherTrackAnalysesRec(id, 0, AccumulatedAveragesM.empty)
+                    .then(accumulatedAverages => addToRadarChartDataMap(playlist, accumulatedAverages))
+            })
         }
-    }, [selectedPlaylist])
+    }, [selectedPlaylistsMap])
 
     return (
-        <div className="stats">
-            <div className={classnames("stats__nav", "tab-nav")}>
-                {tabs.map((tab, index) => {
-                    return <div className={classnames(selectedTabIndex === index && 'tab-nav--selected')} key={index} onClick={() => setSelectedTabIndex(index)}>{tab.displayName}</div>
-                })}
-            </div>
-            <div className="stats__section">
-                {tabs[selectedTabIndex].component()}
-            </div>
-        </div>
+        <Flex
+            flexGrow={1}
+            direction='column'
+            justifyContent='space-between'
+            marginLeft='1rem'
+        >
+            <Tabs variant='enclosed'>
+                <TabList>
+                    {tabs.map((tab, index) => <Tab key={index}>{tab.displayName}</Tab>)}
+                </TabList>
+                <TabPanels>
+                    {tabs.map((tab, index) => (
+                        <TabPanel height='90rem' key={index} >
+                            {tab.renderPanel()}
+                        </TabPanel>
+                    ))}
+                </TabPanels>
+            </Tabs>
+        </Flex>
     )
 }
 

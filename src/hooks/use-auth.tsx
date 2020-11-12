@@ -32,7 +32,8 @@ function useProvideAuth(spotifyClient: SpotifyWebApi.SpotifyWebApiJs) {
 
     const createAuthUrl = () => {
         const baseUrl = new URL("https://accounts.spotify.com/authorize")
-        baseUrl.searchParams.append("client_id", "")
+        // TODO: hide client ID in an .env file
+        baseUrl.searchParams.append("client_id", "393d247301384a6c82e120b9502b388e")
         baseUrl.searchParams.append("redirect_uri", "http://localhost:3000/auth")
         baseUrl.searchParams.append("scope", "user-read-private,user-read-email")
         baseUrl.searchParams.append("response_type", "token")

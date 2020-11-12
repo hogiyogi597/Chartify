@@ -1,18 +1,27 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ResponsiveRadar } from '@nivo/radar'
+import { color, useToken } from '@chakra-ui/core'
 
-const RadarChart = ({ data, playlistName }: { data: any[], playlistName: string }) => {
+const RadarChart = ({ data }: { data: any[] }) => {
+    const [colors]: [Record<number, string>] = useToken('colors', ['graph'])
+
+    const allPlaylistNames = data.map(d => {
+        const { analysisFeature, ...rest } = d
+        return Object.keys(rest)
+    })
+    const chartKeys = Array.from(new Set(...allPlaylistNames))
+
     return (
         <ResponsiveRadar
             data={data}
-            keys={[playlistName]}
+            keys={chartKeys}
             indexBy='analysisFeature'
             maxValue={1}
             margin={{ top: 70, right: 80, bottom: 40, left: 80 }}
             curve="linearClosed"
             borderWidth={3}
             borderColor={{ from: 'color', modifiers: [] }}
-            gridLevels={5}
+            gridLevels={10}
             gridShape="linear"
             gridLabelOffset={40}
             enableDots={true}
@@ -23,9 +32,9 @@ const RadarChart = ({ data, playlistName }: { data: any[], playlistName: string 
             enableDotLabel={true}
             dotLabel="value"
             dotLabelYOffset={-12}
-            colors={{ scheme: 'nivo' }}
-            fillOpacity={0.75}
-            blendMode="multiply"
+            colors={(datum) => colors[datum.index]}
+            fillOpacity={0.45}
+            blendMode="normal"
             animate={true}
             isInteractive={true}
             legends={[

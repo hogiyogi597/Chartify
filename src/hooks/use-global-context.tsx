@@ -1,22 +1,23 @@
 import React, { useContext, createContext, useState } from "react";
 import { AccumulatedAverages } from "../models/accumulatedAverages";
+import { ChartData } from "../models/radarChartData";
 
 type IGlobalContext = {
-    selectedPlaylist: SpotifyApi.PlaylistObjectSimplified | undefined,
-    setSelectedPlaylist: (playlist: SpotifyApi.PlaylistObjectSimplified) => void
+    selectedPlaylistsMap: Map<string, SpotifyApi.PlaylistObjectSimplified>,
+    togglePlaylistFromMap: (playlist: SpotifyApi.PlaylistObjectSimplified) => void
     trackAnalyses: SpotifyApi.AudioFeaturesObject[],
     setTrackAnalyses: (trackAnalyses: SpotifyApi.AudioFeaturesObject[]) => void,
-    averagedAnalyses: AccumulatedAverages | undefined,
-    setAveragedAnalyses: (accum: AccumulatedAverages) => void
+    radarChartDataMap: Map<string, ChartData[]>,
+    addToRadarChartDataMap: (playlistId: SpotifyApi.PlaylistObjectSimplified, accum: AccumulatedAverages) => void
 }
 
 const initialState = {
-    selectedPlaylist: undefined,
-    setSelectedPlaylist: () => { },
+    selectedPlaylistsMap: new Map(),
+    togglePlaylistFromMap: (_: SpotifyApi.PlaylistObjectSimplified) => { },
     trackAnalyses: [],
     setTrackAnalyses: () => { },
-    averagedAnalyses: undefined,
-    setAveragedAnalyses: () => { }
+    radarChartDataMap: new Map(),
+    addToRadarChartDataMap: (_: SpotifyApi.PlaylistObjectSimplified, __: AccumulatedAverages) => { }
 }
 
 const GlobalContext = createContext<IGlobalContext>(initialState);
@@ -32,16 +33,50 @@ export const useGlobal = () => {
 };
 
 const useGlobalProvider = () => {
-    const [selectedPlaylist, setSelectedPlaylist] = useState<SpotifyApi.PlaylistObjectSimplified>()
+    const [selectedPlaylistsMap, setSelectedPlaylistsMap] = useState<Map<string, SpotifyApi.PlaylistObjectSimplified>>(new Map())
     const [trackAnalyses, setTrackAnalyses] = useState<SpotifyApi.AudioFeaturesObject[]>([])
-    const [averagedAnalyses, setAveragedAnalyses] = useState<AccumulatedAverages | undefined>()
+    const [radarChartDataMap, setRadarChartDataMap] = useState<Map<string, ChartData[]>>(new Map())
+
+    const MAX_NUMBER_OF_PLAYLISTS = 5
+
+    const togglePlaylistFromMap = (playlist: SpotifyApi.PlaylistObjectSimplified) => {
+        const newMap = new Map(selectedPlaylistsMap)
+        const canSelect = Array.from(selectedPlaylistsMap.keys()).length < MAX_NUMBER_OF_PLAYLISTS
+
+        if (newMap.get(playlist.id)) {
+            newMap.delete(playlist.id)
+            setSelectedPlaylistsMap(newMap)
+            removeChartDataFromMap(playlist.id)
+        }
+        else if (canSelect) {
+            newMap.set(playlist.id, playlist)
+            setSelectedPlaylistsMap(newMap)
+        }
+    }
+
+    const addToRadarChartDataMap = (playlist: SpotifyApi.PlaylistObjectSimplified, averagedAnalyses: AccumulatedAverages) => {
+        const chartData: ChartData[] = Object.keys(averagedAnalyses).map((key, index) => {
+            return {
+                'analysisFeature': key,
+                [playlist.name]: (Object.values(averagedAnalyses)[index] as number).toFixed(2)
+            }
+        })
+
+        setRadarChartDataMap(new Map(radarChartDataMap.set(playlist.id, chartData)))
+    }
+
+    const removeChartDataFromMap = (playlistId: string) => {
+        const newMap = new Map(radarChartDataMap)
+        newMap.delete(playlistId)
+        setRadarChartDataMap(newMap)
+    }
 
     return {
-        selectedPlaylist,
-        setSelectedPlaylist,
+        selectedPlaylistsMap,
+        togglePlaylistFromMap,
         trackAnalyses,
         setTrackAnalyses,
-        averagedAnalyses,
-        setAveragedAnalyses
+        radarChartDataMap,
+        addToRadarChartDataMap
     }
 }
